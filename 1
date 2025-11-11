@@ -1,0 +1,42 @@
+import numpy as np
+
+import tensorflow as tf
+
+print(tf.__version__)
+
+from keras import datasets
+
+(x_train,y_train) , (x_test,y_test)= datasets.mnist.load_data()
+
+print("The shape of train images :",x_train.shape)
+print("The shape of traing lables :",y_train.shape)
+print("The shape of test images :",x_test.shape)
+print("The shape of testing lables :",y_test.shape)
+
+
+
+import torch
+import torch.nn as nn
+print(torch.__version__)
+print(torch.cuda.is_available())
+
+
+!pip install Theano
+
+# Import libraries
+
+import theano.tensor as T
+from theano import function
+
+# Declare symbolic variables
+x = T.dscalar('x')
+y = T.dscalar('y')
+
+# Define a simple function (e.g., z = x + y)
+z = x + y
+
+# Compile it into a Theano function
+f = function([x, y], z)
+
+# Test it
+f(2, 3)
