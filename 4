@@ -1,0 +1,55 @@
+import numpy as np
+from sklearn.model_selection import train_test_split
+from tensorflow.keras import Model
+from tensorflow.keras.layers import Input
+from tensorflow.keras.layers import Dense
+
+# Step 1: Generate synthetic normal and anomaly data
+normal_data = np.random.normal(0,1,(1000,10))
+anamoly_data = np.random.normal(5,1,(250,10))
+
+# Step 2: Combine data and labels
+data= np.vstack([normal_data,anamoly_data])
+lables=np.hstack([np.zeros(1000),np.ones(250)])
+
+# Step 3: Split into train and test sets
+x_train , x_test , y_train, y_test = train_test_split(data,lables,test_size=0.3,random_state=42)
+
+# Step 4: Define Autoencoder model
+input_dim= x_train.shape[1]
+encoding_dim=5
+
+input_layer = Input(shape=(input_dim,))
+encoder_layer = Dense(encoding_dim,activation='relu') (input_layer)
+decoding_layer = Dense(input_dim,activation='linear') (encoder_layer)
+
+autoencoder= Model(input_layer,decoding_layer)
+
+# Step 5: Compile the model
+autoencoder.compile(
+    optimizer='adam',
+    loss='mse'
+)
+
+# Step 6: Train only on normal data
+autoencoder.fit(x_train[y_train ==0], x_train[y_train == 0], epochs=10)
+
+# Step 7: Predict on test data
+x_pred = autoencoder.predict(x_test)
+mse = ((x_test - x_pred) ** 2).mean(axis=1)
+
+# Step 8: Calculate reconstruction error on training data
+x_train_pred = autoencoder.predict(x_train[y_train ==0])
+mse_train = ((x_train[y_train ==0] -x_train_pred) ** 2).mean(axis=1)
+
+# Step 9: Determine threshold
+threshold = np.mean(mse_train) +3*np.std(mse_train)
+
+# Step 10: Predict anomalies
+y_pred = (mse >threshold).astype(int)
+
+# Step 11: Display results
+print("Calculated Threshold:", threshold)
+print("True labels (first 20):", y_test[:20])
+print("Predicted labels (first 20):", y_pred[:20])
+print("MSE (first 20 samples):",mse[:20])
